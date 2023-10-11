@@ -1,0 +1,33 @@
+SELECT gg.gg_customer_id AS 'GG_Customer_id',
+CASE WHEN gg.Agreement_ID IS NULL 
+THEN ''
+ELSE gg.Agreement_ID END AS 'Agreement_id',
+
+CASE WHEN gg.INS_ID IS NOT NULL
+THEN gp.Policy_number
+WHEN gg.Policy_Number IS NULL 
+THEN ''
+ELSE gg.Policy_Number END AS 'Policy_Number',
+
+CASE WHEN gg.agreement_id IS NOT NULL
+THEN g.routing_number 
+WHEN gg.INS_ID IS NOT NULL
+THEN gp.routing_number
+WHEN gg.Routing_number IS NULL 
+THEN ''
+ELSE gg.Routing_number END AS 'Routing_Number',
+
+CASE WHEN gg.Agreement_ID IS NOT NULL
+THEN g.Account_Number
+WHEN gg.INS_ID IS NOT NULL
+THEN gp.Account_Number
+WHEN gg.Account_number IS NULL 
+THEN ''
+ELSE gg.Account_number END AS 'Account_number',
+
+CASE WHEN gg.INS_ID IS NULL 
+THEN ''
+ELSE gg.INS_ID END AS 'INS_ID'
+FROM dbo.GG_ONEINC_CUSTOMERS gg
+left JOIN dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS gp ON gp.GG_Customer_ID=gg.GG_Customer_ID AND gg.INS_ID=gp.INS_ID
+left JOIN dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS g ON gg.GG_Customer_ID=g.GG_Customer_ID AND gg.Agreement_ID=g.agreement_id AND g.agreement_id IS NOT NULL 
