@@ -1,0 +1,52 @@
+-- these queries will contribute towards inserting data into GG_ONEINC_CUSTOMERS and GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS
+--Step1 insert ins_ids
+INSERT into dbo.GG_ONEINC_CUSTOMERS(
+    GG_Customer_ID,
+    INS_ID)
+SELECT NEWID(),ins_id
+FROM ins_pcy_xref 
+WHERE pcy_number IN (
+SELECT DISTINCT a6plno FROM GMCC400.DEV400.PPLIBT.ARPT235) AND IPX_Active=1 GROUP BY INS_ID
+
+--Step2 insert salesforce is
+INSERT INTO GG_ONEINC_CUSTOMERS(GG_Customer_ID,Agreement_ID)
+SELECT NEWID(), id FROM(
+SELECT DISTINCT sf.id 
+FROM GMCC400.DEV400.PPLIBT.AGPT083 AS agr
+INNER JOIN SALESFORCE_PROD...Account AS sf ON agr.bkagag=SUBSTRING(sf.FinServ__SourceSystemId__C,1,LEN(sf.FinServ__SourceSystemId__C)-1) AND sf.Record_Type_Name__c='Agreement'
+WHERE agr.bkabsx='Y') AS distinct_ag
+
+--Step3 insert policies without insids
+ INSERT INTO gg_oneinc_customers(GG_Customer_ID,Policy_Number,Routing_number,Account_number)
+SELECT NEWID(),a6plno,a6ach3,a6ach5
+FROM GMCC400.DEV400.PPLIBT.ARPT235 
+where a6plno not in (select distinct pcy_number from ins_pcy_xref where ipx_active=1)
+GROUP BY a6plno,a6ach3,a6ach5 
+
+--insert agent account details
+INSERT INTO dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS
+(
+    GG_Customer_ID,
+    agreement_id,
+    Routing_Number,
+	Account_Number
+    
+)
+SELECT gg.GG_Customer_ID, sf.id,agr.bkbkid,agr.bkbka#
+FROM GG_ONEINC_CUSTOMERS gg
+ JOIN SALESFORCE_PROD...Account AS sf ON
+ gg.agreement_id=sf.id AND sf.Record_Type_Name__c='Agreement'
+  JOIN GMCC400.DEV400.PPLIBT.AGPT083 agr ON agr.bkagag=SUBSTRING(sf.FinServ__SourceSystemId__C,1,LEN(sf.FinServ__SourceSystemId__C)-1) 
+ WHERE  agr.bkabsx='Y'
+GROUP BY gg.GG_Customer_ID, sf.id,agr.bkbkid,agr.bkbka#
+
+--insert ins policy account details
+INSERT INTO gg_oneinc_ins_policy_account_details(GG_Customer_ID,INS_ID,Policy_number,Routing_Number,Account_Number)
+SELECT gg.gg_customer_id, gg.INS_ID,PCY_Number,G.A6ACH3,G.A6ACH5
+FROM dbo.GG_ONEINC_CUSTOMERS gg
+JOIN dbo.INS_PCY_XREF I ON gg.ins_id=i.INS_ID
+LEFT JOIN GMCC400.DEV400.PPLIBT.ARPT235 G ON G.A6PLNO=I.PCY_NUMBER
+WHERE IPX_Active=1
+AND PCY_Number IN (SELECT DISTINCT a6plno FROM GMCC400.DEV400.PPLIBT.ARPT235 )
+GROUP BY gg.GG_Customer_ID,PCY_Number,gg.INS_ID,G.A6ACH3,G.A6ACH5
+ORDER BY gg.ins_id
