@@ -8,6 +8,7 @@ INSERT INTO dbo.GG_ONEINC_CUSTOMERS
 )
 SELECT NEWID(), Inserted.INS_ID
 FROM Inserted WHERE Inserted.ins_id NOT IN (SELECT DISTINCT ins_id FROM gg_oneinc_customers)
+--inserts into GG_ONEINC_CUSTOMERS only when ins_id is not in it already.
 
 INSERT INTO dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS
 (
