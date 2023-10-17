@@ -1,0 +1,22 @@
+CREATE OR alter TRIGGER GG_CUSTOMER_INS_NEW
+ON INS_PCY_XREF AFTER INSERT
+AS BEGIN
+INSERT INTO dbo.GG_ONEINC_CUSTOMERS
+(
+    GG_Customer_ID,
+    INS_ID
+)
+SELECT NEWID(), Inserted.INS_ID
+FROM Inserted WHERE Inserted.ins_id NOT IN (SELECT DISTINCT ins_id FROM gg_oneinc_customers)
+
+INSERT INTO dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS
+(
+    GG_Customer_ID,
+    INS_ID,
+    Policy_number
+
+)
+SELECT g.GG_Customer_ID,Inserted.INS_ID,Inserted.PCY_Number
+FROM Inserted 
+JOIN dbo.GG_ONEINC_CUSTOMERS g ON Inserted.INS_ID=g.INS_ID
+END
