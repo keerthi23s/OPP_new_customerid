@@ -1,0 +1,65 @@
+--ins_ids
+INSERT into dbo.GG_ONEINC_CUSTOMERS(
+    GG_Customer_ID,
+    INS_ID,
+	Account_Name)
+SELECT NEWID(),ip.INS_ID,CONCAT(i.INS_FirstName,' ',i.INS_LastName)
+FROM ins_pcy_xref ip
+JOIN dbo.INS_Insured i ON i.INS_ID = ip.INS_ID
+WHERE ip.pcy_number IN (
+SELECT A5PLNO 
+FROM GMCCPRD.GMCC400.PPLIBT.ARPT075
+JOIN GMCCPRD.GMCC400.PPLIBT.NAMSTR ON A5PLNO=POLNUM
+WHERE [DELETE] <> 'D') AND ip.IPX_Active=1 GROUP BY ip.INS_ID,CONCAT(i.INS_FirstName,' ',i.INS_LastName)
+
+
+--policies without ins_id
+ INSERT INTO gg_oneinc_customers(GG_Customer_ID,Policy_Number,Routing_number,Account_number,Account_Name)
+SELECT newid(),a5plno,a5bkid,a5bka#,a5prnm
+FROM GMCC400.DEV400.PPLIBT.ARPT075 
+JOIN GMCCPRD.GMCC400.PPLIBT.NAMSTR ON A5PLNO=POLNUM
+where [DELETE] <> 'D'
+AND a5plno not in (select distinct pcy_number from ins_pcy_xref where ipx_active=1)
+GROUP BY a5plno,a5bkid,a5bka#,a5prnm
+
+--policies with ind 
+INSERT INTO gg_oneinc_ins_policy_account_details(GG_Customer_ID,INS_ID,Policy_number,Routing_Number,Account_Number,Account_Name)
+SELECT gg.gg_customer_id, gg.INS_ID,PCY_Number,G.A5BKID,G.A5BKA#,G.A5PRNM
+FROM dbo.GG_ONEINC_CUSTOMERS gg
+JOIN dbo.INS_PCY_XREF I ON gg.ins_id=i.INS_ID
+LEFT JOIN GMCCPRD.GMCC400.PPLIBT.ARPT075 G ON G.A5PLNO=I.PCY_NUMBER
+WHERE IPX_Active=1
+AND PCY_Number IN (SELECT a5plno FROM GMCCPRD.GMCC400.PPLIBT.ARPT075 
+					JOIN GMCCPRD.GMCC400.PPLIBT.NAMSTR ON A5PLNO=POLNUM WHERE [DELETE] <> 'd' )
+GROUP BY gg.GG_Customer_ID,PCY_Number,gg.INS_ID,G.A5BKID,G.A5BKA#,G.A5PRNM
+ORDER BY gg.ins_id
+
+--only unique agreements 
+INSERT INTO GG_ONEINC_CUSTOMERS(GG_Customer_ID,Agreement_ID)
+SELECT NEWID(), id FROM(
+SELECT DISTINCT sf.id
+FROM GMCC400.DEV400.PPLIBT.AGPT083 AS agr
+INNER JOIN SALESFORCE_PROD...Account AS sf ON agr.bkagag=SUBSTRING(sf.FinServ__SourceSystemId__C,1,LEN(sf.FinServ__SourceSystemId__C)-1) AND sf.Record_Type_Name__c='Agreement'
+WHERE agr.bkabsx='Y') AS distinct_ag
+
+--agreement accounts 
+INSERT INTO dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS
+(
+    GG_Customer_ID,
+    agreement_id,
+    Routing_Number,
+	Account_Number
+    )
+SELECT gg.GG_Customer_ID, sf.id,agr.bkbkid,agr.bkbka#
+FROM GG_ONEINC_CUSTOMERS gg
+ JOIN SALESFORCE_PROD...Account AS sf ON
+ gg.agreement_id=sf.id AND sf.Record_Type_Name__c='Agreement'
+  JOIN GMCC400.DEV400.PPLIBT.AGPT083 agr ON agr.bkagag=SUBSTRING(sf.FinServ__SourceSystemId__C,1,LEN(sf.FinServ__SourceSystemId__C)-1) 
+ WHERE  agr.bkabsx='Y'
+GROUP BY gg.GG_Customer_ID, sf.id,agr.bkbkid,agr.bkbka#
+--update with names for agents 
+update gg
+SET gg.account_name= A.bkprnm
+FROM dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS gg
+JOIN GMCC400.DEV400.PPLIBT.AGPT083 A ON gg.Account_Number=A.bkbka# AND gg.Routing_Number=A.bkbkid
+WHERE A.bkabsx='Y'
