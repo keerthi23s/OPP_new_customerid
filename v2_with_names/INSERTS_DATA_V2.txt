@@ -61,5 +61,5 @@ GROUP BY gg.GG_Customer_ID, sf.id,agr.bkbkid,agr.bkbka#
 update gg
 SET gg.account_name= A.bkprnm
 FROM dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS gg
-JOIN GMCC400.DEV400.PPLIBT.AGPT083 A ON gg.Account_Number=A.bkbka# AND gg.Routing_Number=A.bkbkid
-WHERE A.bkabsx='Y'
+JOIN GMCCPRD.GMCC400.PPLIBT.AGPT083 A ON gg.Account_Number=A.bkbka# AND gg.Routing_Number=A.bkbkid
+WHERE A.bkabsx='Y' AND GG.agreement_id IS NOT NULL
