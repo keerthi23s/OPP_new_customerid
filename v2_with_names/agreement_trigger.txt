@@ -1,0 +1,29 @@
+
+--1. first pull
+SELECT *
+INTO Salesforce_oneinc_agreement_table
+FROM salesforce_prod...Account WHERE Record_Type_Name__c='Agreement'
+
+--2.AGREEMENT TRIGGER
+CREATE OR ALTER TRIGGER GG_SF_AGREEMENT_ONEINC
+ON Salesforce_oneinc_agreement_table
+AFTER INSERT
+AS
+BEGIN 
+INSERT INTO GG_ONEINC_CUSTOMERS(GG_CUSTOMER_ID,
+AGREEMENT_ID)
+SELECT NEWID(), INSERTED.ID 
+FROM INSERTED WHERE INSERTED.ID NOT IN (SELECT Agreement_ID FROM dbo.GG_ONEINC_CUSTOMERS)
+END
+
+--3.should go in the job for every day to check for new records
+
+CREATE OR ALTER PROCEDURE SF_GG_AGREEMENT_PULL
+AS
+BEGIN
+INSERT INTO Salesforce_oneinc_agreement_table
+SELECT * FROM SALESFORCE_PROD...Account WHERE Record_Type_Name__c='Agreement' 
+AND 
+ NOT EXISTS (
+SELECT Id FROM salesforce_oneinc_agreement_table WHERE Record_Type_Name__c='Agreement')
+END
