@@ -7,7 +7,7 @@ INSERT INTO dbo.GG_ONEINC_CUSTOMERS
     INS_ID
 )
 SELECT NEWID(), Inserted.INS_ID
-FROM Inserted WHERE Inserted.ins_id NOT IN (SELECT DISTINCT ins_id FROM gg_oneinc_customers)
+FROM Inserted WHERE Inserted.ins_id NOT IN (SELECT DISTINCT ins_id FROM gg_oneinc_customers WHERE INS_ID IS NOT null)
 --inserts into GG_ONEINC_CUSTOMERS only when ins_id is not in it already.
 
 INSERT INTO dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS
@@ -20,5 +20,4 @@ INSERT INTO dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS
 SELECT g.GG_Customer_ID,Inserted.INS_ID,Inserted.PCY_Number
 FROM Inserted 
 JOIN dbo.GG_ONEINC_CUSTOMERS g ON Inserted.INS_ID=g.INS_ID
-JOIN GMCCPRD.GMCC400.PPLIBT.ARPT075 a ON inserted.pcy_number=a.a5prnm
 END
