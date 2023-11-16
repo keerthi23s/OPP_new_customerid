@@ -22,8 +22,11 @@ CREATE OR ALTER PROCEDURE SF_GG_AGREEMENT_PULL
 AS
 BEGIN
 INSERT INTO Salesforce_oneinc_agreement_table
-SELECT * FROM SALESFORCE_PROD...Account WHERE Record_Type_Name__c='Agreement' 
-AND 
- NOT EXISTS (
-SELECT Id FROM salesforce_oneinc_agreement_table WHERE Record_Type_Name__c='Agreement')
+SELECT *
+FROM SALESFORCE_TEST...Account
+WHERE Record_Type_Name__c='Agreement' and
+CreatedDate > (
+    SELECT MAX(CreatedDate)
+    FROM Salesforce_oneinc_agreement_table
+)
 END
