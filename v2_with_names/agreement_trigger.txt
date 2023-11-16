@@ -6,14 +6,14 @@ FROM salesforce_prod...Account WHERE Record_Type_Name__c='Agreement'
 
 --2.AGREEMENT TRIGGER
 CREATE OR ALTER TRIGGER GG_SF_AGREEMENT_ONEINC
-ON Salesforce_oneinc_agreement_table
+ON Salesforce_oneinc_agreements_table
 AFTER INSERT
 AS
 BEGIN 
 INSERT INTO GG_ONEINC_CUSTOMERS(GG_CUSTOMER_ID,
 AGREEMENT_ID)
 SELECT NEWID(), INSERTED.ID 
-FROM INSERTED WHERE INSERTED.ID NOT IN (SELECT Agreement_ID FROM dbo.GG_ONEINC_CUSTOMERS)
+FROM INSERTED WHERE INSERTED.ID NOT IN (SELECT Agreement_ID FROM dbo.GG_ONEINC_CUSTOMERS WHERE Agreement_ID IS NOT null)
 END
 
 --3.should go in the job for every day to check for new records
