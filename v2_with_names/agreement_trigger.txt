@@ -21,12 +21,12 @@ END
 CREATE OR ALTER PROCEDURE SF_GG_AGREEMENT_PULL
 AS
 BEGIN
-INSERT INTO Salesforce_oneinc_agreement_table
-SELECT *
+INSERT INTO salesforce_oneinc_agreements_table
+SELECT id,Name,ParentId,Record_type_Name__C,FinServ__SourceSystemId__C,CreatedDate,LastModifiedDate
 FROM SALESFORCE_TEST...Account
 WHERE Record_Type_Name__c='Agreement' and
 CreatedDate > (
     SELECT MAX(CreatedDate)
-    FROM Salesforce_oneinc_agreement_table
+    FROM salesforce_oneinc_agreements_table
 )
 END
