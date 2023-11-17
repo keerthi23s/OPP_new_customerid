@@ -1,17 +1,15 @@
 --ins_ids
 INSERT into dbo.GG_ONEINC_CUSTOMERS(
     GG_Customer_ID,
-    INS_ID,
-	Account_Name)
-SELECT NEWID(),ip.INS_ID,CONCAT(i.INS_FirstName,' ',i.INS_LastName)
+    INS_ID)
+SELECT NEWID(),ip.INS_ID
 FROM ins_pcy_xref ip
 JOIN dbo.INS_Insured i ON i.INS_ID = ip.INS_ID
 WHERE ip.pcy_number IN (
 SELECT A5PLNO 
 FROM GMCCPRD.GMCC400.PPLIBT.ARPT075
 JOIN GMCCPRD.GMCC400.PPLIBT.NAMSTR ON A5PLNO=POLNUM
-WHERE [DELETE] <> 'D') AND ip.IPX_Active=1 GROUP BY ip.INS_ID,CONCAT(i.INS_FirstName,' ',i.INS_LastName)
-
+WHERE [DELETE] <> 'D') AND ip.IPX_Active=1 GROUP BY ip.INS_ID
 
 --policies without ins_id
  INSERT INTO gg_oneinc_customers(GG_Customer_ID,Policy_Number,Routing_number,Account_number,Account_Name)
