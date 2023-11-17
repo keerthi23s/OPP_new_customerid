@@ -14,7 +14,7 @@ WHERE [DELETE] <> 'D') AND ip.IPX_Active=1 GROUP BY ip.INS_ID
 --policies without ins_id
  INSERT INTO gg_oneinc_customers(GG_Customer_ID,Policy_Number,Routing_number,Account_number,Account_Name)
 SELECT newid(),a5plno,a5bkid,a5bka#,a5prnm
-FROM GMCC400.DEV400.PPLIBT.ARPT075 
+FROM GMCCPRD.GMCC400.PPLIBT.ARPT075 
 JOIN GMCCPRD.GMCC400.PPLIBT.NAMSTR ON A5PLNO=POLNUM
 where [DELETE] <> 'D'
 AND a5plno not in (select distinct pcy_number from ins_pcy_xref where ipx_active=1)
