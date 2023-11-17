@@ -36,8 +36,8 @@ ORDER BY gg.ins_id
 INSERT INTO GG_ONEINC_CUSTOMERS(GG_Customer_ID,Agreement_ID)
 SELECT NEWID(), id FROM(
 SELECT DISTINCT sf.id
-FROM GMCC400.DEV400.PPLIBT.AGPT083 AS agr
-INNER JOIN SALESFORCE_PROD...Account AS sf ON agr.bkagag=SUBSTRING(sf.FinServ__SourceSystemId__C,1,LEN(sf.FinServ__SourceSystemId__C)-1) AND sf.Record_Type_Name__c='Agreement'
+FROM GMCCPRD.GMCC400.PPLIBT.AGPT083 AS agr
+INNER JOIN SALESFORCE_TEST...Account AS sf ON agr.bkagag=SUBSTRING(sf.FinServ__SourceSystemId__C,1,LEN(sf.FinServ__SourceSystemId__C)-1) AND sf.Record_Type_Name__c='Agreement'
 WHERE agr.bkabsx='Y') AS distinct_ag
 
 --agreement accounts 
