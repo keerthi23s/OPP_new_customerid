@@ -1,0 +1,21 @@
+USE [GMCC_WEB]
+GO
+
+/****** Object:  Table [salesforce_oneinc_agreements_table]    Script Date: 11/29/2023 10:12:21 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [salesforce_oneinc_agreements_table](
+	[Id] [NVARCHAR](18) NOT NULL,
+	[Name] [NVARCHAR](255) NULL,
+	[ParentId] [NVARCHAR](18) NULL,
+	[Record_type_Name__C] [NVARCHAR](255) NULL,
+	[FinServ__SourceSystemId__C] [NVARCHAR](100) NULL,
+	[CreatedDate] [DATETIME2](7) NOT NULL,
+	[LastModifiedDate] [DATETIME2](7) NOT NULL
+) ON [PRIMARY]
+GO
+
