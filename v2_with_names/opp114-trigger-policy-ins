@@ -4,9 +4,10 @@ AS BEGIN
 INSERT INTO dbo.GG_ONEINC_CUSTOMERS
 (
     GG_Customer_ID,
-    INS_ID
+    INS_ID,
+	last_modified_date
 )
-SELECT NEWID(), Inserted.INS_ID
+SELECT NEWID(), Inserted.INS_ID,GETDATE()
 FROM Inserted WHERE Inserted.ins_id NOT IN (SELECT DISTINCT ins_id FROM gg_oneinc_customers WHERE INS_ID IS NOT null)
 --inserts into GG_ONEINC_CUSTOMERS only when ins_id is not in it already.
 
@@ -14,10 +15,10 @@ INSERT INTO dbo.GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS
 (
     GG_Customer_ID,
     INS_ID,
-    Policy_number
+    Policy_number,last_modified_date
 
 )
-SELECT g.GG_Customer_ID,Inserted.INS_ID,Inserted.PCY_Number
+SELECT g.GG_Customer_ID,Inserted.INS_ID,Inserted.PCY_Number,GETDATE()
 FROM Inserted 
 JOIN dbo.GG_ONEINC_CUSTOMERS g ON Inserted.INS_ID=g.INS_ID
 END
