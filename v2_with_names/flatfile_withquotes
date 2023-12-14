@@ -1,0 +1,32 @@
+SELECT CONCAT('"', REPLACE(abc.GG_Customer_ID, '"', ''), '"')  AS 'GG_CUSTOMER_ID',
+CONCAT('"', REPLACE(abc.Agreement_ID, '"', ''), '"') AS 'Agreement_ID',
+CONCAT('"', REPLACE(abc.Policy_Number, '"', ''), '"') AS 'Policy_Number',
+CONCAT('"', REPLACE(abc.Routing_number, '"', ''), '"') AS 'Routing_number',
+CONCAT('"', REPLACE(abc.Account_Number, '"', ''), '"') AS 'Account_Number',
+CONCAT('"', REPLACE(abc.INS_ID, '"', ''), '"')AS 'INS_ID',
+CONCAT('"', REPLACE(abc.Bank_Account_Name, '"', ''), '"') AS 'Bank_Account_Name'
+FROM (
+SELECT GG_CUSTOMER_ID,
+case when Agreement_ID is null then ''
+	else Agreement_ID end Agreement_ID,
+case when Policy_Number is null then ''
+	 else Policy_Number end Policy_Number,
+Routing_number,
+RTRIM(REPLACE(Account_number,'"','')) AS 'Account_Number',
+case when INS_ID is null then ''
+	 else REPLACE(INS_ID,'"','') end INS_ID,
+RTRIM(REPLACE(Account_Name,'"','')) as 'Bank_Account_Name'
+from GG_ONEINC_CUSTOMERS
+where Policy_Number is not null
+union
+select GG_CUSTOMER_ID,
+case when Agreement_ID is null then ''
+	else Agreement_ID end Agreement_ID,
+case when Policy_Number is null then ''
+	 else Policy_Number end Policy_Number,
+Routing_number,
+RTRIM(REPLACE(Account_number,'"','')) AS 'Account_Number',
+case when INS_ID is null then ''
+	 else INS_ID end INS_ID,
+RTRIM(REPLACE(Account_Name,'"','')) as 'Bank_Account_Name'
+from GG_ONEINC_INS_POLICY_ACCOUNT_DETAILS) abc
